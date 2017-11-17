@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Hospital Management System", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("Personal Details", "PersonalDetails", new { area = ""},null)</li>
+                    <li>@Html.ActionLink("Branch Locations", "locations", new { area = "" }, null)</li>
+                    @if (HttpContext.Current.Application["Category"] != null)
+                    {
+                        if (HttpContext.Current.Application["Category"].ToString() == "Patient")
+                        {
+                          <li id="Appointment" class="dropdown">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Appointment<b class="caret"></b></a>
+                          <ul class="dropdown-menu">
+                            <li id="1columnAppointment">
+                            @Html.ActionLink("Book Appointment", "bookbasedlocation", "Home", null)
+                            </li>
+                            <li id="2columnAppointment">
+                                @Html.ActionLink("View Appointment", "ViewAppointment", "Home", null)
+                            </li>
+                        </ul>
+                    </li>
+                        }
+                        else
+                        {
+                            <li id="Appointment" class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Appointment<b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li id="1columnAppointment">
+                                        @Html.ActionLink("View Upcoming appointments", "upcomingAppointment", "Home", null)
+                                    </li>
+                                    <li id="2columnAppointment">
+                                        @Html.ActionLink("Add treatment info", "AddTreatment", "Home", null)
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    }
+                       
+                    <li>
+                        <ul>
+                            @if (HttpContext.Current.Application["Username"] == null)
+                            {
+                                <li>@Html.ActionLink("login", "login", "Home")</li>
+                            }
+                            else
+                            {
+                                <li> @Html.ActionLink("logout", "logout", "Home")</li>
+                            }
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Hospital Management Application</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

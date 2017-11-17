@@ -1,0 +1,74 @@
+﻿@model HospitalManagementSystem.Models.Treatment
+@{
+    ViewBag.Title = "AddTreatment";
+}
+<script>
+    function AddCust() {
+        var m = $('#divcust input:last-child').attr('name');
+        var index = 0;
+        if (m != null && m.length > 0) {
+            index = m.split('CustList[')[1].replace('].Name', '');
+            index++;
+        }
+
+        var html = '<input id=\"CustList_' + index + '__Name\" class=\"col-md-10 form-control\"' +
+            ' type=\"text\" value=\"\" name=\"CustList[' + index + '].Name\">';
+        $('#divcust').append(html);
+
+
+    };
+</script>
+<h2>Add Treatment</h2>
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        <hr/>
+        <div class="form-group">
+            @Html.LabelFor(model => model.name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.name, (IEnumerable<SelectListItem>)ViewBag.patientlst)
+                @Html.ValidationMessageFor(model => model.name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.diagnosis, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.diagnosis, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.diagnosis, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.scan, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.scan, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.scan, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.ert, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ert, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ert, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.medicine, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.medicine, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.medicine, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div id="divcust" class="form-group">
+            <div class="col-md-10">
+
+            </div>
+        </div>
+        <input id="btnAdd" type="button" value="Add Medicines[Med-name(dosage)]" onclick="AddCust();" />
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+        </div>
+        }

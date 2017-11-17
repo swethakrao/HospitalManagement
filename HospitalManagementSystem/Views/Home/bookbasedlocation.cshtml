@@ -1,0 +1,44 @@
+﻿@model HospitalManagementSystem.Models.BookAnAppointment
+@{
+    ViewBag.Title = "bookbasedlocation";
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width" />
+
+    <title>Book Appointment</title>
+
+</head>
+
+<body>
+
+    <h2>Book Appointment</h2>
+    <div>
+
+        @using (Html.BeginForm())
+
+        {
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.location, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.location, (IEnumerable<SelectListItem>)ViewBag.loca)
+                    @Html.ValidationMessageFor(model => model.location, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+
+                <input type="submit" value="Book An Appointment" />
+
+
+                @ViewBag.Message
+
+        }
+    </div>
+</body>
+</html>

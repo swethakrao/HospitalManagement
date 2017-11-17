@@ -1,0 +1,52 @@
+﻿@model HospitalManagementSystem.Models.Value
+@{
+    ViewBag.Title = "login";
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width" />
+
+    <title>LOGIN</title>
+
+</head>
+
+<body>
+
+    <h2>LOGIN</h2>
+    <div style="margin:0 auto; text-align: left; border: 2px; width:400px;">
+
+        @using (Html.BeginForm())
+
+        {
+
+            <div>
+
+                @Html.LabelFor(m => m.usrname)
+
+                @Html.TextBoxFor(m => m.usrname)<br /><br/>
+
+                @Html.LabelFor(m => m.password)
+
+                @Html.PasswordFor(m => m.password)<br /><br/>
+                <p style="font-weight:bold;">
+                    Are you a Patient or Employee? <br /><br />
+                    @Html.RadioButtonFor(m => m.category, "Patient", true) Patient &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.category, "Employee", false) Employee
+                </p>
+
+
+                <input type="submit" value="Submit" />
+
+
+                @ViewBag.Message
+            </div>
+
+        }
+    </div>
+</body>
+</html>
+

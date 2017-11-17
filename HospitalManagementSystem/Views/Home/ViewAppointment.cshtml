@@ -1,0 +1,73 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.BookAnAppointment>
+@{
+    ViewBag.Title = "ViewAppointment";
+}
+<html>
+<head>
+</head>
+<body>
+    <h2>ViewAppointment</h2>
+
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.date_admitted)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.doctor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.admit_time)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.location)
+            </th>
+            <th>
+               
+            </th>
+            <th>
+               
+            </th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.date_admitted)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.doctor)
+                </td>
+                <td style="display:none;">
+                    @Html.DisplayFor(modelItem => item.pdid)
+                </td>
+                <td style="display:none;">
+                    @Html.DisplayFor(modelItem => item.doctor_id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.admit_time)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.location)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "edita", new{ id = item.pdid, date_admitted = item.date_admitted, status = item.status, doctor = item.doctor, admittime = item.admit_time, location = item.location, doctor_id = item.doctor_id })
+                </td>
+                <td>
+                    @Html.ActionLink("Cancel", "cancel", new { id = item.pdid })
+                </td>
+            </tr>
+        }
+      
+
+    </table>
+
+    </body>
+</html>

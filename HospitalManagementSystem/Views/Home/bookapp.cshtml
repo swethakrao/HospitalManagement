@@ -1,0 +1,64 @@
+﻿@model HospitalManagementSystem.Models.BookAnAppointment
+@{
+    ViewBag.Title = "bookapp";
+}
+<html>
+<head>
+</head>
+<body>
+    <h2>Book An Appointment</h2>
+
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.status, htmlAttributes: new { @class = "control-label col-md-2" })
+
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.status, (IEnumerable<SelectListItem>)ViewBag.appointmentType)
+                    @Html.ValidationMessageFor(model => model.status, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.date_admitted, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.date_admitted, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.date_admitted, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.admit_time, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.admit_time, new { htmlAttributes = new { @class = "form-control" } })
+                    <text>Time format 24 hours (00:00)</text>
+                    @Html.ValidationMessageFor(model => model.admit_time, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.doctor, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.doctor, (IEnumerable<SelectListItem>)ViewBag.doctor)
+                    @Html.ValidationMessageFor(model => model.doctor, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div style="display:none;">
+                @Html.DropDownListFor(model => model.doctor_id, (IEnumerable<SelectListItem>)ViewBag.docid)
+            </div>
+            @ViewBag.Message
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Book an Appointment" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+</body>
+
+</html>

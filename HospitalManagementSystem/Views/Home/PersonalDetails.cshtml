@@ -1,0 +1,46 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.EmployeePatient>
+@{
+    ViewBag.Title = "PersonalDetails";
+}
+
+<h2>PersonalDetails</h2>
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.address)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.sex)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.contactinfo)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.sex)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.contactinfo)
+            </td>
+            <td>
+                @Html.ActionLink("edit", "edit", "Home")
+                </td>
+</tr>
+    }
+   
+</table>
