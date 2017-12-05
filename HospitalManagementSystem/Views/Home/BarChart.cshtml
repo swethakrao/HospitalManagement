@@ -1,0 +1,54 @@
+﻿
+@{
+    ViewBag.Title = "BarChart";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Charts</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.bundle.min.js"></script>
+    <script>
+
+        var barChartData =
+            {
+                labels: [@Html.Raw(ViewBag.Productname_List)],
+                datasets: [{
+                    label: 'Progress Count',
+                    backgroundColor: "#9966FF",
+                    borderWidth: 1,
+                    data: [@ViewBag.MobileCount_List]
+                }]
+            };
+
+            window.onload = function () {
+                var ctx1 = document.getElementById("barcanvas").getContext("2d");
+                window.myBar = new Chart(ctx1,
+                    {
+                        type: 'bar',
+                        data: barChartData,
+                        options:
+                            {
+                                title:
+                                {
+                                    display: true,
+                                    text: "Patient Progress Chart"
+                                },
+                                responsive: true,
+                                maintainAspectRatio: true
+                            }
+                    });
+            }
+    </script>
+</head>
+<body>
+    <div style="text-align: center">
+        <canvas id="barcanvas"></canvas>
+    </div>
+    <div style="text-align: center">
+        Dec, 2017
+    </div>
+</body>
+</html>  
+

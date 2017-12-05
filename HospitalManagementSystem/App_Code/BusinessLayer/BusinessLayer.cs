@@ -10,7 +10,9 @@ using System.Data.SqlClient;
 /// <summary>
 /// Summary description for BusinessLayer
 /// </summary>
-public class BusinessLayer 
+/// Author: Swetha KrishnamurthyRao
+/// UBID: 1004265
+public class BusinessLayer : ICharts
 {
     DataAccess da = new DataAccess();
    public string authentication(Value v)
@@ -313,6 +315,30 @@ public class BusinessLayer
         return dt;
     }
 
+    public DataTable getAllTreatmentDetails(string patient_id)
+    {
+        string sql = "SELECT t.Diagnosis, t.scan, t.Medicine, t.Recovery," +
+                     "e.E_Name FROM Treatment t, Employee e " +
+                     "WHERE t.EID = e.EID AND t.PID = @pid; ";
+        List<DbParameter> PList = new List<DbParameter>();
+        SqlParameter p1 = new SqlParameter("@pid", SqlDbType.VarChar, 10);
+        p1.Value = patient_id;
+        PList.Add(p1);
+        DataTable dt = da.GetDataTable(sql, PList);
+        return dt;
+    }
+    public DataTable getPatientName_id_progress(string doctor_id)
+    {
+        DataTable dt = null;
+        string sql = "SELECT (p.PID + ':' + p.Name) AS patient FROM Patient p, Treatment t " +
+                     "WHERE (p.PID = t.PID and EID=@doc) and t.Progress <> '';";
+        List<DbParameter> PList = new List<DbParameter>();
+        SqlParameter p1 = new SqlParameter("@doc", SqlDbType.VarChar, 10);
+        p1.Value = doctor_id;
+        PList.Add(p1);
+        dt = da.GetDataTable(sql, PList);
+        return dt;
+    }
     public DataTable getPatientName_id(string doctor_id)
     {
         DataTable dt = null;
@@ -325,12 +351,118 @@ public class BusinessLayer
         dt = da.GetDataTable(sql, PList);
         return dt;
     }
+    
+    public int updateprogress(string checkpr)
+    {
+        int res = 0;
+        string dte = null;
+        string val = null;
+        string sql;
+        string sql_select = "SELECT Progress FROM Treatment WHERE PID=@pidd;";
+        List<DbParameter> PList1 = new List<DbParameter>();
+        SqlParameter sp1 = new SqlParameter("@pidd", SqlDbType.VarChar, 10);
+        sp1.Value = HttpContext.Current.Application["Username"].ToString();
+        PList1.Add(sp1);
+        string progress = (da.GetSingleAnswer(sql_select, PList1)).ToString();
+        if (progress != "")
+        {
+            string[] ch = progress.Split(',');
+            foreach(string c in ch){
+                dte = c.Split('(')[0];
+                if(dte == checkpr.Split('(')[0])
+                {
+                    val = dte + "(" + checkpr.Split('(')[1];
+                }
+                else
+                {
+                    val = progress + "," + checkpr;
+                }
+            }
+
+        }
+        else
+        {
+            val = checkpr;
+            
+        }
+        sql = "UPDATE Treatment SET Progress=@prog WHERE PID = @pid";
+        List<DbParameter> PList = new List<DbParameter>();
+        SqlParameter p1 = new SqlParameter("@prog", SqlDbType.VarChar, 1000);
+        p1.Value = val;
+        PList.Add(p1);
+        SqlParameter p2 = new SqlParameter("@pid", SqlDbType.VarChar, 10);
+        p2.Value = HttpContext.Current.Application["Username"].ToString();
+        PList.Add(p2);
+        res = da.InsOrUpdOrDel(sql, PList);
+        return res;
+    }
 
     public int updateTreatmentDetails(Treatment treat)
     {
         int res = 0;
         Random r_no = new Random();
         string tid = (r_no.Next(1000, 9999)).ToString();
+        string eid = HttpContext.Current.Application["Username"].ToString();
+        try
+        {
+            string sql = "INSERT INTO Treatment (TID, PID, EID, Diagnosis, Scan, Medicine, Recovery) " +
+                         "VALUES (@tid, @pid, @eid, @diag, @sc, @med, @rec);";
+            List<DbParameter> PList = new List<DbParameter>();
+            SqlParameter p1 = new SqlParameter("@tid", SqlDbType.VarChar, 10);
+            p1.Value = tid;
+            PList.Add(p1);
+            SqlParameter p2 = new SqlParameter("@pid", SqlDbType.VarChar, 10);
+            p2.Value = treat.pdid;
+            PList.Add(p2);
+            SqlParameter p3 = new SqlParameter("@eid", SqlDbType.VarChar, 10);
+            p3.Value = eid;
+            PList.Add(p3);
+            SqlParameter p4 = new SqlParameter("@diag", SqlDbType.VarChar, 1000);
+            p4.Value = treat.diagnosis;
+            PList.Add(p4);
+            SqlParameter p5 = new SqlParameter("@sc", SqlDbType.VarChar, 90);
+            p5.Value = treat.scan;
+            PList.Add(p5);
+            SqlParameter p6 = new SqlParameter("@med", SqlDbType.VarChar, 2000);
+            p6.Value = treat.medicine;
+            PList.Add(p6);
+            SqlParameter p7 = new SqlParameter("@rec", SqlDbType.VarChar, 50);
+            p7.Value = treat.ert;
+            PList.Add(p7);
+            res = da.InsOrUpdOrDel(sql, PList);
+        }
+        catch(Exception e)
+        {
+            throw (e);
+        }
         return res;
+    }
+
+    public void progressChart(out string progressValue, out string dateOfProgress, string ppid)
+    {
+        string sql_select = "SELECT Progress FROM Treatment WHERE PID=@pidd;";
+        List<DbParameter> PList1 = new List<DbParameter>();
+        SqlParameter sp1 = new SqlParameter("@pidd", SqlDbType.VarChar, 10);
+        sp1.Value = ppid;
+        PList1.Add(sp1);
+        string progress = (da.GetSingleAnswer(sql_select, PList1)).ToString();
+        string[] temp = progress.Split(',');
+        string tempDate = null, tempCount = null;
+        foreach(string te in temp)
+        {
+            tempDate = tempDate + (Convert.ToDateTime(te.Split('(')[0])).Date.Day + "," ;
+            tempCount = tempCount + (te.Split('(')[1]).Replace(')', ' ') + ",";
+        }
+
+        progressValue = tempCount.TrimEnd(',');
+        dateOfProgress = tempDate.TrimEnd(',');
+    }
+    public DataTable getTreatmentForSearch()
+    {
+        DataTable dt = null;
+        string sql = "SELECT Diagnosis, Scan, Medicine, Recovery FROM Treatment;";
+        List<DbParameter> PList1 = new List<DbParameter>();
+        dt = da.GetDataTable(sql, PList1);
+        return dt;
     }
 }

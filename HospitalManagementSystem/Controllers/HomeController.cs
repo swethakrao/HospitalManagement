@@ -14,6 +14,9 @@ namespace HospitalManagementSystem.Controllers
     public class HomeController : Controller
     {
         BusinessLayer blayer = new BusinessLayer();
+        ICharts _ICharts;
+
+        //Displays the index page of the application
         public ActionResult Index()
         {
             ViewBag.Title = "Home Page";
@@ -24,22 +27,24 @@ namespace HospitalManagementSystem.Controllers
         {
             return View();
         }
+        //Success message page
         public ActionResult success()
         {
             return View();
         }
+        // On user logout, remove all the application contexts
         public ActionResult logout()
         {
             HttpContext.Application["Username"] = null;
             return RedirectToAction("login");
         }
-
+        // Login page on load
         [HttpGet]
         public ActionResult login()
         {
             return View();
         }
-
+        //Authenticates the login credentials with that of the database
         [HttpPost]
         public ActionResult login(Value v)
         {
@@ -60,6 +65,7 @@ namespace HospitalManagementSystem.Controllers
             }
             return View();
         }
+        //Edits the personal details of the user using WebAPI GET
         public ActionResult edit()
         {
             EmployeePatient ep = null;
@@ -104,6 +110,7 @@ namespace HospitalManagementSystem.Controllers
 
             return View(ep);
         }
+        //Web API post message on editing the personal details of the logged in user.
         [HttpPost]
         public ActionResult Edit(EmployeePatient ep)
         {
@@ -134,7 +141,7 @@ namespace HospitalManagementSystem.Controllers
         }
     
 
-
+        // Allows the patient to book an appointment with the doctor
     public ActionResult bookapp()
         {
             List<SelectListItem> items = new List<SelectListItem>();
@@ -166,6 +173,7 @@ namespace HospitalManagementSystem.Controllers
             ViewBag.location = new List<SelectListItem>();
             return View();
         }
+        //On booking, sends an email confirmation and stores the same in database
       [HttpPost]
         public ActionResult bookapp(BookAnAppointment ba)
         {
@@ -230,11 +238,13 @@ namespace HospitalManagementSystem.Controllers
 
             return RedirectToAction("SuccessAppointment");
         }
+        //uses Google API to display all the location of the Hospital in the USA
        public ActionResult locations()
         {
 
             return View();
         }
+        //Loads the Personal details of the logged in user as a table
         public ActionResult PersonalDetails()
         {
             IEnumerable<EmployeePatient> info_list = null;
@@ -265,7 +275,7 @@ namespace HospitalManagementSystem.Controllers
                 }
                 return View(info_list);  
         }
-
+        //Displays the locations of the hospital so that the patient can book an appointment with the doctor in that area.
         public ActionResult bookbasedlocation()
         {
             System.Data.DataTable dt =  blayer.getAllBranchLocations();
@@ -281,6 +291,7 @@ namespace HospitalManagementSystem.Controllers
             return View();
         }
 
+        // Posting the selected location for displaying the doctors present in the selected area.
         [HttpPost]
         public ActionResult bookbasedlocation(BookAnAppointment ba)
         {
@@ -316,7 +327,7 @@ namespace HospitalManagementSystem.Controllers
         {
             return View();
         }
-
+// The Doctor can view all the appointments scheduled using WebAPI GET
         public ActionResult ViewAppointment()
         {
             IEnumerable<BookAnAppointment> info_list = null;
@@ -409,7 +420,7 @@ namespace HospitalManagementSystem.Controllers
             }
             return View(ba);
         }
-
+        // Allows the doctor to cancel an appointment
         public ActionResult cancel(string id)
         {
             using (var client = new HttpClient())
@@ -430,6 +441,7 @@ namespace HospitalManagementSystem.Controllers
 
             return RedirectToAction("ViewAppointment");
         }
+        //Displays all the upcoming appointments with the particular doctor
         public ActionResult upcomingAppointment()
         {
             IList<upcomingApp> up = new List<upcomingApp>();
@@ -461,6 +473,7 @@ namespace HospitalManagementSystem.Controllers
 
             return View(up);
         }
+        //Cancels an appointment and updates the table
         public ActionResult cancel_appointment(string id)
         {
             int res = blayer.deleteAppointment(id);
@@ -470,23 +483,34 @@ namespace HospitalManagementSystem.Controllers
             }
             return RedirectToAction("upcomingAppointment");
         }
+        //Add treatments to patients
         [HttpPost]
         public ActionResult AddTreatment(FormCollection frm)
         {
             Treatment treat = new Treatment();
-            treat.pdid = (Request.Form[0]).Split(':')[0];
-            treat.name = (Request.Form[0]).Split(':')[1];
+            List<SelectListItem> lst = (List<SelectListItem>)HttpContext.Application["pidname"];
+            treat.pdid = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[0];
+            treat.name = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[1];
             treat.diagnosis = Request.Form[1];
             treat.scan = Request.Form[2];
             treat.ert = Request.Form[3];
-            for(int i = 4; i < frm.AllKeys.Length; i++)
+            treat.medicine = Request.Form[4];
+            for(int i = 5; i < frm.AllKeys.Length; i++)
             {
                 treat.medicine = treat.medicine + "," + Request.Form[i];
             }
-            blayer.updateTreatmentDetails(treat);
+           if( blayer.updateTreatmentDetails(treat) > 0)
+            {
+                return RedirectToAction("successTreatment");
+            }
            
             return View();
         }
+        public ActionResult successTreatment()
+        {
+            return View();
+        }
+        //Displays a list of patients under that doctor so that the doctor can choose to update treatment details
         public ActionResult AddTreatment()
         {
             System.Data.DataTable dt = blayer.getPatientName_id(HttpContext.Application["Username"].ToString());
@@ -499,8 +523,156 @@ namespace HospitalManagementSystem.Controllers
                 count++;
             }
             ViewBag.patientlst = ls;
+            HttpContext.Application["pidname"] = ls;
             return View();
         }
+        //Displays the treatment details of a patient
+        public ActionResult viewPatientTreatment()
+        {
+            Treatment treat = new Treatment(); 
+            DataTable dt = null;
+            string p_id = HttpContext.Application["Username"].ToString();
+            dt = blayer.getAllTreatmentDetails(p_id);
+            foreach(DataRow row in dt.Rows)
+            {
+                treat.d_name = row["E_Name"].ToString();
+                treat.diagnosis = row["Diagnosis"].ToString();
+                treat.scan = row["Scan"].ToString();
+                treat.medicine = row["Medicine"].ToString();
+                treat.ert = row["Recovery"].ToString();
+            }
+            return View(treat);
         }
+        //Displays a set of questions so that the doctor can check progress based on these data
+        [HttpGet]
+        public ActionResult checkProgress()
+        {
+            questionnaire q = new questionnaire();
+            try
+            {   
+                string[] readText = System.IO.File.ReadAllLines(@"C:\Users\swetha rao\documents\visual studio 2015\Projects\HospitalManagementSystem\HospitalManagementSystem\progress.txt");
+                q.q_one = readText[0];
+                q.q_two = readText[1];
+                q.q_three = readText[2];
+                q.q_four = readText[3];
+                q.q_five = readText[4];
+                q.q_six = readText[5];
+                q.q_seven = readText[6];
+                q.q_eight = readText[7];
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The file could not be read:");
+                Console.WriteLine(e.Message);
+            }
+            return View(q);
+        }
+        //On submission of the form, the data is stored in Treatment table
+        [HttpPost]
+        public ActionResult checkProgress(questionnaire quest)
+        {
+            int total = 0;
+            total = Convert.ToInt32(quest.a_one) + Convert.ToInt32(quest.a_two) + Convert.ToInt32(quest.a_three) + Convert.ToInt32(quest.a_four) + Convert.ToInt32(quest.a_five) + Convert.ToInt32(quest.a_six) + Convert.ToInt32(quest.a_seven) + Convert.ToInt32(quest.a_eight);
+            string checkpr = (DateTime.Today).ToString() + "(" + total.ToString() + ")" ;
+            blayer.updateprogress(checkpr);
+            return RedirectToAction("checkProgress");
+        }
+        //Displays a list of patient details under that Doctor
+        [HttpGet]
+        public ActionResult DiagnosisPatientDetails()
+        {
+            System.Data.DataTable dt = blayer.getPatientName_id_progress(HttpContext.Application["Username"].ToString());
+            List<SelectListItem> ls = new List<SelectListItem>();
+            int count = 0;
+            foreach (DataRow row in dt.Rows)
+            {
+
+                ls.Add(new SelectListItem { Text = row["patient"].ToString(), Value = count.ToString() });
+                count++;
+            }
+            HttpContext.Application["progresspid"] = ls;
+            ViewBag.det = ls;
+            return View();
+        }
+        //On selection of a patient from the list, it redirects to BarChart.cshtml
+        [HttpPost]
+        public ActionResult DiagnosisPatientDetails(FormCollection frm)
+        {
+            Treatment treat = new Treatment();
+            List<SelectListItem> lst = (List<SelectListItem>)HttpContext.Application["progresspid"];
+            treat.pdid = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[0];
+            treat.name = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[1];
+
+            HttpContext.Application["progresspid"] = treat.pdid;
+
+            return RedirectToAction("BarChart");
+        }
+        //BarChart displays the patient progress as a bar chart
+        [HttpGet]
+        public ActionResult BarChart()
+        {
+
+            _ICharts = blayer;
+            try
+            {
+                string ppid = HttpContext.Application["progresspid"].ToString();
+                string tempCount = string.Empty;
+                string tempDate = string.Empty;
+                _ICharts.progressChart(out tempCount, out tempDate, ppid);
+                ViewBag.MobileCount_List = tempCount.Trim();
+                ViewBag.Productname_List = tempDate.Trim();
+
+                return View();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        //Search for symptoms shows a autocomplete textbox of symptoms already solved by the doctor
+        public ActionResult searchForSymptoms()
+        {
+            return View();
+        }
+        //On selection of a symptom, the diagnosis details are fetched from the database and displayed.
+        [HttpPost]
+        public ActionResult searchForSymptoms(string prefix, FormCollection frm)
+        {
+            DataTable dt = blayer.getTreatmentForSearch();
+            int count = 0;
+            List<Treatment> objList = new List<Treatment>();
+            Treatment t = new Treatment();
+            foreach(DataRow row in dt.Rows)
+            {
+                if (prefix == null && Request.Form[1] == row["Diagnosis"].ToString())
+                {
+                    t.diagnosis = row["Diagnosis"].ToString();
+                    t.scan = row["Scan"].ToString();
+                    t.ert = row["Recovery"].ToString();
+                    t.medicine = row["Medicine"].ToString();
+                }
+                else
+                {
+                    objList.Add(new Treatment { pdid = (count++).ToString(), diagnosis = row["Diagnosis"].ToString() });
+                }
+            }
+            if (prefix == null)
+            {
+                return RedirectToAction("diagnosisResult","Home",t);
+            }
+            var CityName = (from N in objList
+                            where N.diagnosis.StartsWith(prefix)
+                            select new { N.diagnosis });
+            return Json(CityName, JsonRequestBehavior.AllowGet);
+        }
+
+        //Displays the diagnosis results
+        public ActionResult diagnosisResult(Treatment tr)
+        {
+            
+            return View(tr);
+        }
+    }
     } 
 

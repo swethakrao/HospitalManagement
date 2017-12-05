@@ -1,0 +1,68 @@
+﻿@model HospitalManagementSystem.Models.questionnaire
+@{
+    ViewBag.Title = "Progress Check";
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width" />
+
+    <title>Progress Check</title>
+
+</head>
+
+<body>
+
+    <h2>Progress Check</h2><br/><br/>
+    <h4> Please fill out the below form to track your progress.</h4>
+    <div style="margin:0 auto; text-align: left; border: 2px; width:700px;">
+
+        @using (Html.BeginForm())
+
+        {
+            <div>     
+                @Html.DisplayTextFor(m => m.q_one)<br />
+                @Html.RadioButtonFor(m => m.a_one, "25", false) 0-25% &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_one, "50", false) 26-50%&nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_one, "75", false) 51-75%&nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_one, "100", true) 75-100%<br/>
+               
+                @Html.DisplayTextFor(m => m.q_two)<br/>
+                @Html.RadioButtonFor(m => m.a_two, "10", true) YES &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_two, "0", false) NO<br/>
+                
+                @Html.DisplayTextFor(m => m.q_three)<br />
+                @Html.RadioButtonFor(m => m.a_three, "10", true) YES &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_three, "0", false) NO<br />
+
+                @Html.DisplayTextFor(m => m.q_four)<br />
+                @Html.RadioButtonFor(m => m.a_four, "25", false) Hour &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_four, "50", false) Day &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_four, "75", false) Month &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_four, "100", true) Year<br />
+
+                @Html.DisplayTextFor(m => m.q_five)<br />
+                @Html.RadioButtonFor(m => m.a_five, "25", false)All day &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_five, "50", false) 6-12 Hours &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_five, "75", false) Less than 1 Hour &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_five, "100", true) Less than 1 minute<br />
+
+                @Html.DisplayTextFor(m => m.q_six)<br />
+                @Html.RadioButtonFor(m => m.a_six, "25", false)More &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_six, "50", false) Same &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_six, "75", false) Less &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_six, "100", true) Don't take any now<br />
+
+                @Html.DisplayTextFor(m => m.q_seven)<br />
+                @Html.RadioButtonFor(m => m.a_seven, "10", true) YES &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_seven, "0", false) NO <br />
+
+                @Html.DisplayTextFor(m => m.q_eight)<br />
+                @Html.RadioButtonFor(m => m.a_eight, "0", false) YES &nbsp;&nbsp;&nbsp;&nbsp;@Html.RadioButtonFor(m => m.a_eight, "10", false) NO <br />
+                <br/>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Submit" class="btn btn-default" />
+                    </div>
+                </div>
+
+
+                @ViewBag.Message
+            </div>
+
+        }
+    </div>
+</body>
+</html>
+
+
+

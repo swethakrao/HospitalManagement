@@ -1,0 +1,8 @@
+1) Since your patient consultation how would you rate your overall improvement?
+2) Have any of your complaints shown no improvement or worsened? 
+3) Are you taking medication as specified?
+4) On average, Do you experience symptoms in an hour, day, month or year? 
+5) On average, when you experience symptoms, how long do the symptoms last?
+6) Since your last examination, has the amount of pain medications you are taking changed?
+7) Are you eating healthy?
+8) Is there any other symptoms due to the medications given?

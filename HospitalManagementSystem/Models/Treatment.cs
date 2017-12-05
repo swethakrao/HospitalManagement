@@ -21,5 +21,7 @@ namespace HospitalManagementSystem.Models
         public string medicine { get; set; }
         [Display(Name = "Estimated Recovery Time")]
         public string ert { get; set; }
+        [Display(Name = "Doctor's Name")]
+        public string d_name { get; set; }
     }
 }

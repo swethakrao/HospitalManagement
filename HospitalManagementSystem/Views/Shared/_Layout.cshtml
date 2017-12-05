@@ -21,7 +21,6 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
                     <li>@Html.ActionLink("Personal Details", "PersonalDetails", new { area = ""},null)</li>
                     <li>@Html.ActionLink("Branch Locations", "locations", new { area = "" }, null)</li>
                     @if (HttpContext.Current.Application["Category"] != null)
@@ -37,6 +36,12 @@
                             <li id="2columnAppointment">
                                 @Html.ActionLink("View Appointment", "ViewAppointment", "Home", null)
                             </li>
+                              <li id="3columnAppointment">
+                                  @Html.ActionLink("View Treatment", "viewPatientTreatment", "Home", null)
+                              </li>
+                              <li id="4columnAppointment">
+                                  @Html.ActionLink("Progress Check", "checkProgress", "Home", null)
+                              </li>
                         </ul>
                     </li>
                         }
@@ -50,6 +55,12 @@
                                     </li>
                                     <li id="2columnAppointment">
                                         @Html.ActionLink("Add treatment info", "AddTreatment", "Home", null)
+                                    </li>
+                                    <li id="3columnAppointment">
+                                        @Html.ActionLink("View Progress Chart", "DiagnosisPatientDetails", "Home", null)
+                                    </li>
+                                    <li id="4columnAppointment">
+                                        @Html.ActionLink("Search Symptoms", "searchForSymptoms", "Home", null)
                                     </li>
                                 </ul>
                             </li>

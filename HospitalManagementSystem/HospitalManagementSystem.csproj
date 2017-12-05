@@ -269,7 +269,9 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\BookAnAppointment.cs" />
     <Compile Include="Models\EmployeePatient.cs" />
+    <Compile Include="Models\ICharts.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\questionnaire.cs" />
     <Compile Include="Models\Treatment.cs" />
     <Compile Include="Models\upcomingApp.cs" />
     <Compile Include="Models\Value.cs" />
@@ -337,6 +339,7 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="progress.txt" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="ApplicationInsights.config">
@@ -406,6 +409,13 @@
     <Content Include="Views\Shared\Editor\Date.cshtml" />
     <Content Include="Views\Home\upcomingAppointment.cshtml" />
     <Content Include="Views\Home\AddTreatment.cshtml" />
+    <Content Include="Views\Home\successTreatment.cshtml" />
+    <Content Include="Views\Home\viewPatientTreatment.cshtml" />
+    <Content Include="Views\Home\checkProgress.cshtml" />
+    <Content Include="Views\Home\BarChart.cshtml" />
+    <Content Include="Views\Home\searchForSymptoms.cshtml" />
+    <Content Include="Views\Home\diagnosisResult.cshtml" />
+    <Content Include="Views\Home\DiagnosisPatientDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,44 @@
+﻿@model HospitalManagementSystem.Models.Treatment
+@{
+    ViewBag.Title = "Select Patient Name";
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width" />
+
+    <title>SELECT PATIENT NAME TO VIEW PROGRESS</title>
+
+</head>
+
+<body>
+
+    <h2>Select Patient Name to view progress</h2>
+    <div>
+
+        @using (Html.BeginForm())
+
+        {
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.pdid, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.pdid, (IEnumerable<SelectListItem>)ViewBag.det)
+                    @Html.ValidationMessageFor(model => model.pdid, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+
+            <input type="submit" value="Book An Appointment" />
+
+
+                @ViewBag.Message
+
+        }
+    </div>
+</body>
+</html>
