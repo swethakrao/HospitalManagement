@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
-
+//Author: Swetha KrishnamurthyRao
+// UBID: 1004265
 namespace HospitalManagementSystem.Models
 {
     public class EmployeePatient
@@ -28,5 +29,7 @@ namespace HospitalManagementSystem.Models
         public string details { get; set; }
         [Display(Name = "password")]
         public string password { get; set; }
+        public string epusername { get; set; }
+        public string epcategory { get; set; }
     }
 }

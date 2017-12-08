@@ -9,6 +9,9 @@ using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
 
+//Author: Swetha KrishnamurthyRao
+//UBID: 1004265
+// Home Contoller responsible for the views of the entire application.
 namespace HospitalManagementSystem.Controllers
 {
     public class HomeController : Controller
@@ -35,7 +38,8 @@ namespace HospitalManagementSystem.Controllers
         // On user logout, remove all the application contexts
         public ActionResult logout()
         {
-            HttpContext.Application["Username"] = null;
+            HttpContext.Session["Username"] = null;
+            HttpContext.Session["Category"] = null;
             return RedirectToAction("login");
         }
         // Login page on load
@@ -48,20 +52,28 @@ namespace HospitalManagementSystem.Controllers
         [HttpPost]
         public ActionResult login(Value v)
         {
-            if(blayer.authentication(v) != null)
+            try
             {
-                HttpContext.Application["Username"] = blayer.authentication(v);
-                //Session["username"] = blayer.authentication(v);
-                //Session["category"] = v.category;
-                HttpContext.Application["Category"] = v.category;
-                
-                ViewBag.Message = "Correct credentials";
-                return RedirectToAction("success");
+                if (blayer.authentication(v) != null)
+                {
+                    
+                    HttpContext.Session["Username"] = blayer.authentication(v);
+                    //Session["username"] = blayer.authentication(v);
+                    //Session["category"] = v.category;
+                    HttpContext.Session["Category"] = v.category;
 
+                    ViewBag.Message = "Correct credentials";
+                    return RedirectToAction("success");
+
+                }
+                else
+                {
+                    ViewBag.Message = "Wrong credentials.";
+                }
             }
-            else
+            catch(Exception e)
             {
-                ViewBag.Message = "Wrong credentials.";
+                throw e;
             }
             return View();
         }
@@ -69,10 +81,10 @@ namespace HospitalManagementSystem.Controllers
         public ActionResult edit()
         {
             EmployeePatient ep = null;
-            System.Data.DataTable dt = blayer.getAllInformation(HttpContext.Application["Username"].ToString(), HttpContext.Application["Category"].ToString());
+            System.Data.DataTable dt = blayer.getAllInformation(HttpContext.Session["Username"].ToString(), HttpContext.Session["Category"].ToString());
             foreach(DataRow row in dt.Rows)
             {
-                if (HttpContext.Application["Category"].ToString().Equals("Patient"))
+                if (HttpContext.Session["Category"].ToString().Equals("Patient"))
                 {
                     ep = new EmployeePatient();
                     ep.id = row["PID"].ToString();
@@ -81,7 +93,7 @@ namespace HospitalManagementSystem.Controllers
                     ep.address = row["Address"].ToString();
                     ep.contactinfo = row["contact_no"].ToString();
                 }
-                else if(HttpContext.Application["Category"].ToString().Equals("Employee"))
+                else if(HttpContext.Session["Category"].ToString().Equals("Employee"))
                 {
                     ep = new EmployeePatient();
                     ep.id = row["EID"].ToString();
@@ -95,7 +107,7 @@ namespace HospitalManagementSystem.Controllers
             {
                 client.BaseAddress = new Uri("http://localhost:57394/api/");
                 //HTTP GET
-                var responseTask = client.GetAsync("ep?id=" + HttpContext.Application["Username"].ToString());
+                var responseTask = client.GetAsync("ep?id=" + HttpContext.Session["Username"].ToString());
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -114,14 +126,17 @@ namespace HospitalManagementSystem.Controllers
         [HttpPost]
         public ActionResult Edit(EmployeePatient ep)
         {
+            EmployeePatient empPatient = new EmployeePatient();
+            empPatient = ep;
             try
             {
                 using (var client = new HttpClient())
                 {
                     client.BaseAddress = new Uri("http://localhost:57394/api/ep");
-
+                    empPatient.epusername = HttpContext.Session["Username"].ToString();
+                    empPatient.epcategory = HttpContext.Session["Category"].ToString();
                     //HTTP POST
-                    var putTask = client.PutAsJsonAsync<EmployeePatient>("ep", ep);
+                    var putTask = client.PutAsJsonAsync<EmployeePatient>("ep", empPatient);
                     putTask.Wait();
 
 
@@ -157,7 +172,7 @@ namespace HospitalManagementSystem.Controllers
 
             List<SelectListItem> docList = new List<SelectListItem>();
             List<SelectListItem> docid = new List<SelectListItem>();
-            string locations = HttpContext.Application["location"].ToString();
+            string locations = HttpContext.Session["location"].ToString();
             System.Data.DataTable dt = blayer.getAllDoctors(locations);
             int count = 0;
             foreach(DataRow row in dt.Rows)
@@ -179,7 +194,7 @@ namespace HospitalManagementSystem.Controllers
         {
             int count = 0;
             Random r_no = new Random();
-            string locations = HttpContext.Application["location"].ToString();
+            string locations = HttpContext.Session["location"].ToString();
             System.Data.DataTable dt = blayer.getAllDoctors(locations);
             if (ba.status.Equals("0"))
             {
@@ -201,15 +216,16 @@ namespace HospitalManagementSystem.Controllers
                 {
                     
                     ba.doctor_id = row["EID"].ToString();
-                    ba.PDetails = "PD"+(HttpContext.Application["Username"].ToString()).Substring(1, HttpContext.Application["Username"].ToString().Length - 1);
+                    ba.PDetails = "PD"+(HttpContext.Session["Username"].ToString()).Substring(1, HttpContext.Session["Username"].ToString().Length - 1);
                     ba.pdid = (r_no.Next(1000, 9999)).ToString();
                     
                 }
                 count++;
             }
 
-            ba.location = HttpContext.Application["location"].ToString();
-            string email_id = blayer.insertAppointment(ba);
+            ba.location = HttpContext.Session["location"].ToString();
+            string emailep = HttpContext.Session["Username"].ToString();
+            string email_id = blayer.insertAppointment(ba, emailep);
             if(email_id.Length > 5)
             {
                 try
@@ -221,14 +237,14 @@ namespace HospitalManagementSystem.Controllers
                     //sending emails with secure protocol  
                     WebMail.EnableSsl = true;
                     //EmailId used to send emails from application  
-                    WebMail.UserName = "kraoswetha2017@gmail.com";
-                    WebMail.Password = "Krishna1409";
+                    WebMail.UserName = "*****";
+                    WebMail.Password = "*****";
 
                     //Sender email address.  
-                    WebMail.From = "kraoswetha2017@gmail.com";
+                    WebMail.From = "****";
 
                     //Send email  
-                    WebMail.Send(to: email_id, subject: "Doctor Appointment Confirmation", body: "<p>Hello,</p><br/><p>This is to confirm your appointment for " + ba.appointmentType + "on " + ((DateTime)ba.date_admitted).ToString("MM/dd/yyyy") + "at " + ba.admit_time + "(24 hours ET)</p>" , isBodyHtml: true);
+                    WebMail.Send(to: email_id, subject: "Doctor Appointment Confirmation", body: "<p>Hello,</p><br/><p>This is to confirm your appointment for " + ba.status + " on " + ((DateTime)ba.date_admitted).ToString("MM/dd/yyyy") + "at " + ba.admit_time + "(24 hours ET)</p>" , isBodyHtml: true);
                 }
                 catch(Exception e)
                 {
@@ -247,13 +263,15 @@ namespace HospitalManagementSystem.Controllers
         //Loads the Personal details of the logged in user as a table
         public ActionResult PersonalDetails()
         {
+
             IEnumerable<EmployeePatient> info_list = null;
-                   
+            try
+            {
                 using (var client = new HttpClient())
                 {
                     client.BaseAddress = new Uri("http://localhost:57394/api/");
                     //HTTP GET
-                    var responseTask = client.GetAsync("info");
+                    var responseTask = client.GetAsync("info?id=" + HttpContext.Session["Username"].ToString() + ":" + HttpContext.Session["Category"].ToString());
                     responseTask.Wait();
 
                     var result = responseTask.Result;
@@ -273,6 +291,11 @@ namespace HospitalManagementSystem.Controllers
                         ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
                     }
                 }
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
                 return View(info_list);  
         }
         //Displays the locations of the hospital so that the patient can book an appointment with the doctor in that area.
@@ -317,7 +340,7 @@ namespace HospitalManagementSystem.Controllers
                         break;
                 }
 
-                HttpContext.Application["location"] = loc;
+                HttpContext.Session["location"] = loc;
             }
 
             return RedirectToAction("bookapp");
@@ -336,7 +359,7 @@ namespace HospitalManagementSystem.Controllers
             {
                 client.BaseAddress = new Uri("http://localhost:57394/api/");
                 //HTTP GET
-                var responseTask = client.GetAsync("viewappointment");
+                var responseTask = client.GetAsync("viewappointment?id= "+ HttpContext.Session["Username"].ToString());
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -447,7 +470,7 @@ namespace HospitalManagementSystem.Controllers
             IList<upcomingApp> up = new List<upcomingApp>();
             upcomingApp upapp = null;
             System.Data.DataTable dt = null;
-            string doctor_id = HttpContext.Application["Username"].ToString();
+            string doctor_id = HttpContext.Session["Username"].ToString();
             dt = blayer.getAllPatientDetails(doctor_id);
             if(dt == null)
             {
@@ -488,18 +511,19 @@ namespace HospitalManagementSystem.Controllers
         public ActionResult AddTreatment(FormCollection frm)
         {
             Treatment treat = new Treatment();
-            List<SelectListItem> lst = (List<SelectListItem>)HttpContext.Application["pidname"];
+            List<SelectListItem> lst = (List<SelectListItem>)HttpContext.Session["pidname"];
             treat.pdid = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[0];
             treat.name = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[1];
             treat.diagnosis = Request.Form[1];
             treat.scan = Request.Form[2];
             treat.ert = Request.Form[3];
             treat.medicine = Request.Form[4];
-            for(int i = 5; i < frm.AllKeys.Length; i++)
+            string unameep = HttpContext.Session["Username"].ToString();
+            for (int i = 5; i < frm.AllKeys.Length; i++)
             {
                 treat.medicine = treat.medicine + "," + Request.Form[i];
             }
-           if( blayer.updateTreatmentDetails(treat) > 0)
+           if( blayer.updateTreatmentDetails(treat, unameep) > 0)
             {
                 return RedirectToAction("successTreatment");
             }
@@ -513,7 +537,7 @@ namespace HospitalManagementSystem.Controllers
         //Displays a list of patients under that doctor so that the doctor can choose to update treatment details
         public ActionResult AddTreatment()
         {
-            System.Data.DataTable dt = blayer.getPatientName_id(HttpContext.Application["Username"].ToString());
+            System.Data.DataTable dt = blayer.getPatientName_id(HttpContext.Session["Username"].ToString());
             List<SelectListItem> ls = new List<SelectListItem>();
             int count = 0;
             foreach (DataRow row in dt.Rows)
@@ -523,7 +547,7 @@ namespace HospitalManagementSystem.Controllers
                 count++;
             }
             ViewBag.patientlst = ls;
-            HttpContext.Application["pidname"] = ls;
+            HttpContext.Session["pidname"] = ls;
             return View();
         }
         //Displays the treatment details of a patient
@@ -531,7 +555,7 @@ namespace HospitalManagementSystem.Controllers
         {
             Treatment treat = new Treatment(); 
             DataTable dt = null;
-            string p_id = HttpContext.Application["Username"].ToString();
+            string p_id = HttpContext.Session["Username"].ToString();
             dt = blayer.getAllTreatmentDetails(p_id);
             foreach(DataRow row in dt.Rows)
             {
@@ -575,14 +599,16 @@ namespace HospitalManagementSystem.Controllers
             int total = 0;
             total = Convert.ToInt32(quest.a_one) + Convert.ToInt32(quest.a_two) + Convert.ToInt32(quest.a_three) + Convert.ToInt32(quest.a_four) + Convert.ToInt32(quest.a_five) + Convert.ToInt32(quest.a_six) + Convert.ToInt32(quest.a_seven) + Convert.ToInt32(quest.a_eight);
             string checkpr = (DateTime.Today).ToString() + "(" + total.ToString() + ")" ;
-            blayer.updateprogress(checkpr);
+            string unameep = HttpContext.Session["Username"].ToString();
+            blayer.updateprogress(checkpr,unameep);
+            ViewBag.Message = "Progress sent to doctor";
             return RedirectToAction("checkProgress");
         }
         //Displays a list of patient details under that Doctor
         [HttpGet]
         public ActionResult DiagnosisPatientDetails()
         {
-            System.Data.DataTable dt = blayer.getPatientName_id_progress(HttpContext.Application["Username"].ToString());
+            System.Data.DataTable dt = blayer.getPatientName_id_progress(HttpContext.Session["Username"].ToString());
             List<SelectListItem> ls = new List<SelectListItem>();
             int count = 0;
             foreach (DataRow row in dt.Rows)
@@ -591,7 +617,7 @@ namespace HospitalManagementSystem.Controllers
                 ls.Add(new SelectListItem { Text = row["patient"].ToString(), Value = count.ToString() });
                 count++;
             }
-            HttpContext.Application["progresspid"] = ls;
+            HttpContext.Session["progresspid"] = ls;
             ViewBag.det = ls;
             return View();
         }
@@ -600,11 +626,11 @@ namespace HospitalManagementSystem.Controllers
         public ActionResult DiagnosisPatientDetails(FormCollection frm)
         {
             Treatment treat = new Treatment();
-            List<SelectListItem> lst = (List<SelectListItem>)HttpContext.Application["progresspid"];
+            List<SelectListItem> lst = (List<SelectListItem>)HttpContext.Session["progresspid"];
             treat.pdid = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[0];
             treat.name = lst[int.Parse(Request.Form[0])].Text.ToString().Split(':')[1];
 
-            HttpContext.Application["progresspid"] = treat.pdid;
+            HttpContext.Session["progresspid"] = treat.pdid;
 
             return RedirectToAction("BarChart");
         }
@@ -616,7 +642,7 @@ namespace HospitalManagementSystem.Controllers
             _ICharts = blayer;
             try
             {
-                string ppid = HttpContext.Application["progresspid"].ToString();
+                string ppid = HttpContext.Session["progresspid"].ToString();
                 string tempCount = string.Empty;
                 string tempDate = string.Empty;
                 _ICharts.progressChart(out tempCount, out tempDate, ppid);

@@ -15,6 +15,7 @@ using System.Data.SqlClient;
 public class BusinessLayer : ICharts
 {
     DataAccess da = new DataAccess();
+    //Authentication of the login credentials.
    public string authentication(Value v)
     {
         string sql = "";
@@ -59,6 +60,7 @@ public class BusinessLayer : ICharts
 
         return res;
     }
+    // Gets the doctor's name and specialization
     public string getDoctorName(string docid)
     {
         string res = null;
@@ -71,6 +73,7 @@ public class BusinessLayer : ICharts
 
         return res;
     }
+    // Get all the personal details from Database.
     public DataTable getAllAppointment(string Pdetails)
     {
         DataTable dt = null;
@@ -82,6 +85,7 @@ public class BusinessLayer : ICharts
         dt = da.GetDataTable(sql, PList);
         return dt;
     }
+    // Get all the list of Doctors based on location.
     public DataTable getAllDoctors(string location)
     {
         DataTable dt = null;
@@ -93,6 +97,7 @@ public class BusinessLayer : ICharts
         dt = da.GetDataTable(sql, PList);
         return dt;
     }
+    // Get all the locations of the hospital's location.
     public DataTable getAllBranchLocations()
     {
         DataTable dt = null;
@@ -108,6 +113,7 @@ public class BusinessLayer : ICharts
         };
         return dt;
     }
+    // Get all the details of Patient using PID
     public DataTable getAllInformation(string username,string category)
     {
         DataTable dt = null;
@@ -140,7 +146,8 @@ public class BusinessLayer : ICharts
         };
         return dt;
     }
-    public string insertAppointment(BookAnAppointment ba)
+    // Insert an appointment details into the table
+    public string insertAppointment(BookAnAppointment ba, string email)
     {
         string result = null;
         try
@@ -172,7 +179,6 @@ public class BusinessLayer : ICharts
             if( result != null)
             {
                 string emailPatient = "select email from Patient where PID=@patientid;";
-                string email = HttpContext.Current.Application["Username"].ToString();
                 List<DbParameter> Patientlist = new List<DbParameter>();
                 SqlParameter para1 = new SqlParameter("@patientid", SqlDbType.VarChar, 10);
                 para1.Value = email;
@@ -188,6 +194,7 @@ public class BusinessLayer : ICharts
 
         return result;
     }
+    // Update the change in appointment to the Database
     public string updateAppointment(BookAnAppointment ba)
     {
         string result = null;
@@ -222,10 +229,9 @@ public class BusinessLayer : ICharts
         }
         return result;
     }
-   public string updatePersonalDetails(EmployeePatient ep)
+    // On edit of personal details, Update the details to Database
+   public string updatePersonalDetails(EmployeePatient ep, string uname, string category)
     {
-        string category = HttpContext.Current.Application["Category"].ToString();
-        string uname = HttpContext.Current.Application["Username"].ToString();
         string name = ep.name;
         string sex = ep.sex;
         string address = ep.address;
@@ -282,6 +288,7 @@ public class BusinessLayer : ICharts
         };
         return result;
     }
+    // Delete the appointment on Cancellation 
     public int deleteAppointment(string id)
     {
         int result = 0;
@@ -301,7 +308,7 @@ public class BusinessLayer : ICharts
 
         return result;
     }
-
+    // Get all the details of a Patient
     public DataTable getAllPatientDetails(string doctor_id)
     {
         string sql = "SELECT p.Name, p.Sex, p.email, d.date_admitted," +
@@ -314,7 +321,7 @@ public class BusinessLayer : ICharts
         DataTable dt = da.GetDataTable(sql, PList);
         return dt;
     }
-
+    // Get all the treatment details using PID
     public DataTable getAllTreatmentDetails(string patient_id)
     {
         string sql = "SELECT t.Diagnosis, t.scan, t.Medicine, t.Recovery," +
@@ -327,6 +334,7 @@ public class BusinessLayer : ICharts
         DataTable dt = da.GetDataTable(sql, PList);
         return dt;
     }
+    // Get progress of a Patient using the Patient ID
     public DataTable getPatientName_id_progress(string doctor_id)
     {
         DataTable dt = null;
@@ -339,6 +347,7 @@ public class BusinessLayer : ICharts
         dt = da.GetDataTable(sql, PList);
         return dt;
     }
+    // Obtain Patient ID which is then used to obtain the patient progress
     public DataTable getPatientName_id(string doctor_id)
     {
         DataTable dt = null;
@@ -351,8 +360,8 @@ public class BusinessLayer : ICharts
         dt = da.GetDataTable(sql, PList);
         return dt;
     }
-    
-    public int updateprogress(string checkpr)
+    // The answers of the questionnaire is calculated and updated in a database.
+    public int updateprogress(string checkpr,string unameep)
     {
         int res = 0;
         string dte = null;
@@ -361,7 +370,7 @@ public class BusinessLayer : ICharts
         string sql_select = "SELECT Progress FROM Treatment WHERE PID=@pidd;";
         List<DbParameter> PList1 = new List<DbParameter>();
         SqlParameter sp1 = new SqlParameter("@pidd", SqlDbType.VarChar, 10);
-        sp1.Value = HttpContext.Current.Application["Username"].ToString();
+        sp1.Value = unameep;
         PList1.Add(sp1);
         string progress = (da.GetSingleAnswer(sql_select, PList1)).ToString();
         if (progress != "")
@@ -391,18 +400,18 @@ public class BusinessLayer : ICharts
         p1.Value = val;
         PList.Add(p1);
         SqlParameter p2 = new SqlParameter("@pid", SqlDbType.VarChar, 10);
-        p2.Value = HttpContext.Current.Application["Username"].ToString();
+        p2.Value = unameep;
         PList.Add(p2);
         res = da.InsOrUpdOrDel(sql, PList);
         return res;
     }
-
-    public int updateTreatmentDetails(Treatment treat)
+    // Update the treatment given by the doctor to the table Treatment
+    public int updateTreatmentDetails(Treatment treat, string unameep)
     {
         int res = 0;
         Random r_no = new Random();
         string tid = (r_no.Next(1000, 9999)).ToString();
-        string eid = HttpContext.Current.Application["Username"].ToString();
+        string eid = unameep;
         try
         {
             string sql = "INSERT INTO Treatment (TID, PID, EID, Diagnosis, Scan, Medicine, Recovery) " +
@@ -437,6 +446,7 @@ public class BusinessLayer : ICharts
         }
         return res;
     }
+    //Used to obtain the data for displaying a patient's progress to the doctor.
 
     public void progressChart(out string progressValue, out string dateOfProgress, string ppid)
     {
@@ -457,6 +467,7 @@ public class BusinessLayer : ICharts
         progressValue = tempCount.TrimEnd(',');
         dateOfProgress = tempDate.TrimEnd(',');
     }
+    // Get various symptoms to display them as an autocomplete to aid the doctor in finding similar symptoms.
     public DataTable getTreatmentForSearch()
     {
         DataTable dt = null;

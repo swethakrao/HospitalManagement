@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-
+//Author: Swetha KrishnamurthyRao
+//UBID: 1004265
 namespace HospitalManagementSystem.Models
 {
     public class BookAnAppointment

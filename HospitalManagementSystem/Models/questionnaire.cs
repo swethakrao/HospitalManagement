@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-
+// Author: Swetha KrishnamurthyRao
+// UBID: 1004265
+// Questionnaire to obtain data to record progress of Patient
 namespace HospitalManagementSystem.Models
 {
     public class questionnaire

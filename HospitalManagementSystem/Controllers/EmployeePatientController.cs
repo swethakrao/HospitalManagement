@@ -8,6 +8,9 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 
+//Author: Swetha KrishnamurthyRao
+// UBID: 1004265
+//Web API Controller 
 namespace HospitalManagementSystem.Controllers
 {
     public class EmployeePatientController : ApiController
@@ -17,10 +20,9 @@ namespace HospitalManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Not a valid model");
 
-           
-
-            return Ok();
+           return Ok();
         }
+        // Edit appointment details
         [Route("api/editappointment")]
         public IHttpActionResult Put(BookAnAppointment ba)
         {
@@ -36,28 +38,31 @@ namespace HospitalManagementSystem.Controllers
 
             return NotFound();
         }
+        //Updates the edited personal details to the Database
         [Route("api/ep")]
         public IHttpActionResult Put(EmployeePatient ep)
         {
-            BusinessLayer blayer = new BusinessLayer();
-            if (!ModelState.IsValid)
-                return BadRequest("Not a valid data");
-            
-
-                if (blayer.updatePersonalDetails(ep) != null)
+            if(ep !=null){
+                BusinessLayer blayer = new BusinessLayer();
+                if (!ModelState.IsValid)
+                    return BadRequest("Not a valid data");
+                string uname = ep.epusername;
+                string cat = ep.epcategory;
+                if (blayer.updatePersonalDetails(ep, uname, cat) != null)
                 {
-                return Ok();
+                    return Ok();
                 }
-               
+            }
             return NotFound();
         }
+        // View Appointment for Patient's booked appointments
         [Route("api/viewappointment")]
-        public IHttpActionResult GetAllAppointment()
+        public IHttpActionResult GetAllAppointment(string id)
         {
             BusinessLayer blayer = new BusinessLayer();
             IList<BookAnAppointment> balist = new List<BookAnAppointment>();
             BookAnAppointment bookapp = null;
-            string pdetails = "PD" + (HttpContext.Current.Application["Username"].ToString()).Substring(1, (HttpContext.Current.Application["Username"].ToString()).Length - 1);
+            string pdetails = "PD" + (id.Trim()).Substring(1, id.Trim().Length - 1);
             System.Data.DataTable dt = blayer.getAllAppointment(pdetails);
             if (dt != null)
             {
@@ -82,6 +87,7 @@ namespace HospitalManagementSystem.Controllers
 
                 return Ok(balist);
             }
+        //Cancels an appointment
         [Route("api/va")]
         public IHttpActionResult Delete(string id)
         {
@@ -98,16 +104,19 @@ namespace HospitalManagementSystem.Controllers
                 return NotFound();
             }
         }
+        // Display all Personal details
         [Route("api/info")]
-        public IHttpActionResult GetAllPatientsEmployee()
+        public IHttpActionResult GetAllPatientsEmployee(string id)
         {
             BusinessLayer blayer = new BusinessLayer();
             IList<EmployeePatient> eplist = new List<EmployeePatient>();
             EmployeePatient employee_patient = null;
-            if (HttpContext.Current.Application["Username"] != null && HttpContext.Current.Application["Category"] != null)
+            string uname = id.Split(':')[0];
+            string cat = id.Split(':')[1];
+            if (uname != null && cat != null)
             {
-                System.Data.DataTable dt = blayer.getAllInformation(HttpContext.Current.Application["Username"].ToString(), HttpContext.Current.Application["Category"].ToString());
-                if (HttpContext.Current.Application["Category"].Equals("Patient"))
+                System.Data.DataTable dt = blayer.getAllInformation(uname, cat);
+                if (cat.Equals("Patient"))
                 {
                     foreach (DataRow row in dt.Rows)
                     {

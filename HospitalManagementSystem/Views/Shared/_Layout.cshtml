@@ -23,9 +23,9 @@
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
                     <li>@Html.ActionLink("Personal Details", "PersonalDetails", new { area = ""},null)</li>
                     <li>@Html.ActionLink("Branch Locations", "locations", new { area = "" }, null)</li>
-                    @if (HttpContext.Current.Application["Category"] != null)
+                    @if (HttpContext.Current.Session["Category"] != null)
                     {
-                        if (HttpContext.Current.Application["Category"].ToString() == "Patient")
+                        if (HttpContext.Current.Session["Category"].ToString() == "Patient")
                         {
                           <li id="Appointment" class="dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Appointment<b class="caret"></b></a>
@@ -69,7 +69,7 @@
                        
                     <li>
                         <ul>
-                            @if (HttpContext.Current.Application["Username"] == null)
+                            @if (HttpContext.Current.Session["Username"] == null)
                             {
                                 <li>@Html.ActionLink("login", "login", "Home")</li>
                             }
